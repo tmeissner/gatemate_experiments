@@ -33,21 +33,21 @@ begin
   pll : CC_PLL
   generic map (
     REF_CLK => "10",
-    OUT_CLK => "1",
+    OUT_CLK => "30",
     PERF_MD => "SPEED"
   )
   port map (
     CLK_REF             => clk_i,
     CLK_FEEDBACK        => '0',
     USR_CLK_REF         => '0',
-    USR_LOCKED_STDY_RST => not rst_n_i,
+    USR_LOCKED_STDY_RST => '0',
     USR_PLL_LOCKED_STDY => open,
     USR_PLL_LOCKED      => s_pll_lock,
     CLK270              => open,
     CLK180              => open,
-    CLK0                => open,
+    CLK0                => s_pll_clk,
     CLK90               => open,
-    CLK_REF_OUT         => s_pll_clk
+    CLK_REF_OUT         => open
   );
 
   process (s_pll_clk, rst_n_i) is
