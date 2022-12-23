@@ -26,6 +26,9 @@ architecture rtl of blink is
   signal s_clk_cnt  : unsigned(19 downto 0);
   signal s_clk_en   : boolean;
 
+  signal s_rst_n   : std_logic;
+  signal s_cfg_end : std_logic;
+
   signal s_led : unsigned(led_n_o'range);
 
 begin
@@ -33,14 +36,14 @@ begin
   pll : CC_PLL
   generic map (
     REF_CLK => "10",
-    OUT_CLK => "30",
+    OUT_CLK => "1",
     PERF_MD => "SPEED"
   )
   port map (
     CLK_REF             => clk_i,
     CLK_FEEDBACK        => '0',
     USR_CLK_REF         => '0',
-    USR_LOCKED_STDY_RST => '0',
+    USR_LOCKED_STDY_RST => not rst_n_i,
     USR_PLL_LOCKED_STDY => open,
     USR_PLL_LOCKED      => s_pll_lock,
     CLK270              => open,
@@ -50,9 +53,16 @@ begin
     CLK_REF_OUT         => open
   );
 
-  process (s_pll_clk, rst_n_i) is
+  cfg_end_inst : CC_CFG_END
+  port map (
+    CFG_END => s_cfg_end
+  );
+
+  s_rst_n <= rst_n_i and s_pll_lock and s_cfg_end;
+
+  process (s_pll_clk, s_rst_n) is
   begin
-    if (not rst_n_i) then
+    if (not s_rst_n) then
       s_clk_cnt <= (others => '0');
     elsif (rising_edge(clk_i)) then
       s_clk_cnt <= s_clk_cnt + 1;
@@ -61,9 +71,9 @@ begin
 
   s_clk_en <= s_clk_cnt = (s_clk_cnt'range => '1');
 
-  process (s_pll_clk, rst_n_i) is
+  process (s_pll_clk, s_rst_n) is
   begin
-    if (not rst_n_i) then
+    if (not s_rst_n) then
       s_led <= (others => '0');
     elsif (rising_edge(clk_i)) then
       if (s_clk_en) then
