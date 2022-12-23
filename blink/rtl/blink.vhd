@@ -6,6 +6,9 @@ library ieee ;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library gatemate;
+use gatemate.components.all;
+
 
 entity blink is
 port (
@@ -18,14 +21,36 @@ end entity blink;
 
 architecture rtl of blink is
 
-  signal s_clk_cnt : unsigned(19 downto 0);
-  signal s_clk_en  : boolean;
+  signal s_pll_clk  : std_logic;
+  signal s_pll_lock : std_logic;
+  signal s_clk_cnt  : unsigned(19 downto 0);
+  signal s_clk_en   : boolean;
 
   signal s_led : unsigned(led_n_o'range);
 
 begin
 
-  process (clk_i, rst_n_i) is
+  pll : CC_PLL
+  generic map (
+    REF_CLK => "10",
+    OUT_CLK => "1",
+    PERF_MD => "SPEED"
+  )
+  port map (
+    CLK_REF             => clk_i,
+    CLK_FEEDBACK        => '0',
+    USR_CLK_REF         => '0',
+    USR_LOCKED_STDY_RST => not rst_n_i,
+    USR_PLL_LOCKED_STDY => open,
+    USR_PLL_LOCKED      => s_pll_lock,
+    CLK270              => open,
+    CLK180              => open,
+    CLK0                => open,
+    CLK90               => open,
+    CLK_REF_OUT         => s_pll_clk
+  );
+
+  process (s_pll_clk, rst_n_i) is
   begin
     if (not rst_n_i) then
       s_clk_cnt <= (others => '0');
@@ -36,7 +61,7 @@ begin
 
   s_clk_en <= s_clk_cnt = (s_clk_cnt'range => '1');
 
-  process (clk_i, rst_n_i) is
+  process (s_pll_clk, rst_n_i) is
   begin
     if (not rst_n_i) then
       s_led <= (others => '0');

@@ -1,21 +1,23 @@
 DESIGN_NAME := blink
-SRC_FILES   := ../rtl/blink.vhd
-VHD_STD     := 08
+WORK_FILES   := ../rtl/blink.vhd
+GM_FILES    := ../../lib/components.vhd
+GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 
 .PHONY: all syn
 
-all: ${DESIGN_NAME}_synth.vhd syn
+all: syn
 syn: ${DESIGN_NAME}.v
 
-${DESIGN_NAME}.o: ${SRC_FILES}
-	ghdl -a --std=${VHD_STD} ${SRC_FILES}
+work-obj08.cf: ${WORK_FILES} gatemate-obj08.cf
+	ghdl -a ${GHDL_FLAGS} --work=work ${WORK_FILES}
 
-${DESIGN_NAME}_synth.vhd: ${SRC_FILES}
-	ghdl --synth --std=$(VHD_STD) ${SRC_FILES} -e ${DESIGN_NAME} > $@
+gatemate-obj08.cf: ${GM_FILES}
+	mkdir -p build
+	ghdl -a ${GHDL_FLAGS} --work=gatemate ${GM_FILES}
 
-${DESIGN_NAME}.v: ${DESIGN_NAME}.o
-	yosys -m ghdl -p 'ghdl --std=${VHD_STD} --no-formal ${DESIGN_NAME}; synth_gatemate -nomx8 -vlog $@'
+${DESIGN_NAME}.v: work-obj08.cf
+	yosys -m ghdl -p 'ghdl ${GHDL_FLAGS} --no-formal ${DESIGN_NAME}; synth_gatemate -nomx8 -vlog $@' 2>&1 | tee build/yosys-report.txt
 
 clean :
 	echo "# Cleaning files"
-	rm -f *.o work*.cf ${DESIGN_NAME}.v ${DESIGN_NAME}_synth.vhd
+	rm -rf build ${DESIGN_NAME}.v
