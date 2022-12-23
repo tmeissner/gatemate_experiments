@@ -31,4 +31,4 @@ ${DESIGN_NAME}.bit: ${DESIGN_NAME}.v ${DESIGN_NAME}.ccf
 
 clean :
 	echo "# Cleaning files"
-	rm -rf build ${DESIGN_NAME}.v
+	rm -rf build ${DESIGN_NAME}.v ${DESIGN_NAME}.bit
