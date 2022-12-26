@@ -36,14 +36,14 @@ begin
   pll : CC_PLL
   generic map (
     REF_CLK => "10",
-    OUT_CLK => "1",
-    PERF_MD => "SPEED"
+    OUT_CLK => "2",
+    PERF_MD => "ECONOMY"
   )
   port map (
     CLK_REF             => clk_i,
     CLK_FEEDBACK        => '0',
     USR_CLK_REF         => '0',
-    USR_LOCKED_STDY_RST => not rst_n_i,
+    USR_LOCKED_STDY_RST => '0',
     USR_PLL_LOCKED_STDY => open,
     USR_PLL_LOCKED      => s_pll_lock,
     CLK270              => open,
@@ -64,7 +64,7 @@ begin
   begin
     if (not s_rst_n) then
       s_clk_cnt <= (others => '0');
-    elsif (rising_edge(clk_i)) then
+    elsif (rising_edge(s_pll_clk)) then
       s_clk_cnt <= s_clk_cnt + 1;
     end if;
   end process;
@@ -74,10 +74,10 @@ begin
   process (s_pll_clk, s_rst_n) is
   begin
     if (not s_rst_n) then
-      s_led <= (others => '0');
-    elsif (rising_edge(clk_i)) then
+      s_led <= x"01";
+    elsif (rising_edge(s_pll_clk)) then
       if (s_clk_en) then
-        s_led <= s_led + 1;
+        s_led <= s_led(6 downto 0) & s_led(7);
       end if;
     end if;
   end process;
