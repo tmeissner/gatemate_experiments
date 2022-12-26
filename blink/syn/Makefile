@@ -3,10 +3,10 @@ WORK_FILES   := ../rtl/blink.vhd
 GM_FILES    := ../../lib/components.vhd
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 YOSYSPIPE   := -nomx8 -luttree -retime
-PNRFLAGS    := -sp off -om 3 -cdf off -pin off -plc off -cCP on
+PNRFLAGS    := -sp off -om 2 -cCP on
 PNRTOOL     := $(shell which p_r)
 
-.PHONY: all syn imp
+.PHONY: all syn imp prog
 
 all: imp
 syn: ${DESIGN_NAME}.v
@@ -28,6 +28,9 @@ ${DESIGN_NAME}.bit: ${DESIGN_NAME}.v ${DESIGN_NAME}.ccf
 	  ${PNRTOOL} -i ../${DESIGN_NAME}.v -o $@ --ccf ../${DESIGN_NAME}.ccf $(PNRFLAGS) \
 	  2>&1 | tee p_r-report.txt && \
 	  mv ${DESIGN_NAME}*.bit ../$@
+
+prog: ${DESIGN_NAME}.bit
+	openFPGALoader -b gatemate_evb_jtag $<
 
 clean :
 	echo "# Cleaning files"
