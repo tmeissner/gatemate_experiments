@@ -29,8 +29,6 @@ architecture rtl of blink is
   signal s_rst_n   : std_logic;
   signal s_cfg_end : std_logic;
 
-  signal s_led : unsigned(led_n_o'range);
-
 begin
 
   pll : CC_PLL
@@ -74,14 +72,12 @@ begin
   process (s_pll_clk, s_rst_n) is
   begin
     if (not s_rst_n) then
-      s_led <= x"01";
+      led_n_o <= x"FE";
     elsif (rising_edge(s_pll_clk)) then
       if (s_clk_en) then
-        s_led <= s_led(6 downto 0) & s_led(7);
+        led_n_o <= led_n_o(6 downto 0) & led_n_o(7);
       end if;
     end if;
   end process;
-
-  led_n_o <= not std_logic_vector(s_led);
 
 end architecture;
