@@ -16,7 +16,8 @@ port (
   rst_n_i   : in  std_logic;                    -- SW3 button
   uart_rx_i : in  std_logic;
   uart_tx_o : out std_logic;
-  led_n_o   : out std_logic_vector(2 downto 0)  -- LED1..LED2
+  led_n_o   : out std_logic_vector(3 downto 0);  -- LED1..LED2
+  debug_o   : out std_logic_vector(3 downto 0)
 );
 end entity uart_reg;
 
@@ -29,6 +30,11 @@ architecture rtl of uart_reg is
 
   signal s_rst_n   : std_logic;
   signal s_cfg_end : std_logic;
+
+  signal s_uart_rx_tdata  : std_logic_vector(7 downto 0);
+  signal s_uart_rx_tvalid : std_logic;
+  signal s_uart_rx_tready : std_logic;
+  signal s_uart_tx : std_logic;
 
 begin
 
@@ -57,12 +63,44 @@ begin
     CFG_END => s_cfg_end
   );
 
+  uart_rx : entity work.uart_rx
+  generic map (
+    CLK_DIV => 104
+  )
+  port map (
+    -- globals
+    rst_n_i  => s_rst_n,
+    clk_i    => s_pll_clk,
+    -- axis user interface
+    tdata_o  => s_uart_rx_tdata,
+    tvalid_o => s_uart_rx_tvalid,
+    tready_i => s_uart_rx_tready,
+    -- uart interface
+    rx_i     => uart_rx_i
+  );
+
+  uart_tx : entity work.uart_tx
+  generic map (
+    CLK_DIV => 104
+  )
+  port map (
+    -- globals
+    rst_n_i  => s_rst_n,
+    clk_i    => s_pll_clk,
+    -- axis user interface
+    tdata_i  => s_uart_rx_tdata,
+    tvalid_i => s_uart_rx_tvalid,
+    tready_o => s_uart_rx_tready,
+    -- uart interface
+    tx_o     => uart_tx_o
+  );
+
   s_rst_n <= rst_n_i and s_pll_lock and s_cfg_end;
 
   -- Start with simple loop
-  uart_tx_o <= uart_rx_i;
+--  uart_tx_o <= uart_rx_i;
 
   -- Debug output
-  led_n_o <= s_rst_n & not (s_pll_lock, s_cfg_end);
+  led_n_o <= uart_rx_i & s_rst_n & not (s_pll_lock, s_cfg_end);
 
 end architecture;
