@@ -1,5 +1,5 @@
 DESIGN_NAME := blink
-WORK_FILES   := ../rtl/blink.vhd
+WORK_FILES  := ../../lib/user_components.vhd ../rtl/blink.vhd
 GM_FILES    := ../../lib/rtl_components.vhd
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 YOSYSPIPE   := -nomx8 -luttree -retime
@@ -20,6 +20,7 @@ build/gatemate-obj08.cf: ${GM_FILES}
 	ghdl -a ${GHDL_FLAGS} --work=gatemate ${GM_FILES}
 
 ${DESIGN_NAME}.v: build/work-obj08.cf
+	ghdl --synth ${GHDL_FLAGS} ${DESIGN_NAME} > ${DESIGN_NAME}.vhd
 	yosys -m ghdl -p 'ghdl ${GHDL_FLAGS} --no-formal ${DESIGN_NAME}; synth_gatemate -top $(DESIGN_NAME) ${YOSYSPIPE} -vlog $@' \
 	  2>&1 | tee build/yosys-report.txt
 
@@ -34,4 +35,4 @@ prog: ${DESIGN_NAME}.bit
 
 clean :
 	echo "# Cleaning files"
-	rm -rf build ${DESIGN_NAME}.v ${DESIGN_NAME}.bit
+	rm -rf build ${DESIGN_NAME}.v ${DESIGN_NAME}.vhd ${DESIGN_NAME}.bit
