@@ -1,6 +1,6 @@
 DESIGN_NAME := uart_reg
 WORK_FILES  := ../rtl/uart_tx.vhd ../rtl/uart_rx.vhd ../rtl/uart_reg.vhd
-GM_FILES    := ../../lib/components.vhd
+GM_FILES    := ../../lib/rtl_components.vhd
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 YOSYSPIPE   := -nomx8 -luttree -retime
 PNRFLAGS    := -sp off -om 2 -cCP on
