@@ -19,9 +19,9 @@ port (
   USR_LOCKED_STDY_RST : in std_logic;
   USR_PLL_LOCKED_STDY : out std_logic;
   USR_PLL_LOCKED      : out std_logic;
-  CLK270              : out std_logic;
-  CLK180              : out std_logic;
-  CLK0                : out std_logic := '1';
+  CLK270              : out std_logic := '0';
+  CLK180              : out std_logic := '0';
+  CLK0                : out std_logic := '0';
   CLK90               : out std_logic := '0';
   CLK_REF_OUT         : out std_logic
 );
@@ -30,23 +30,27 @@ end entity;
 
 architecture sim of CC_PLL is
 
-  constant c_period_ns : real := (1000.0 / real'value(OUT_CLK));
-  constant c_half_period_ns : real := c_period_ns / 2.0;
+  signal s_pll_clk_2   : std_logic := '1';
+  signal s_pll_clk_pos : std_logic := '0';
+  signal s_pll_clk_neg : std_logic := '0';
 
 begin
 
-  Log : process is
-  begin
-    report CC_PLL'instance_name & " CC_PLL CLK0 = " & to_string(1000.0/(c_period_ns), 2) & " MHz";
-    wait;
-  end process;
-  
-  CLK0   <= not CLK0 after c_half_period_ns * ns;
-  CLK90  <= transport CLK0 after (c_half_period_ns / 2.0) * ns;
-  CLK180 <= not CLK0;
-  CLK270 <= not CLK90;
+  -- First create a clock with freq = 2 * OUT_CLK;
+  s_pll_clk_2 <= not s_pll_clk_2 after (250.0 / real'value(OUT_CLK)) * ns;
 
-  CLK_REF_OUT <= CLK_REF;
+  -- Then create clocks with freq = OUT_CLK and shifted by 180 degree
+  s_pll_clk_pos <= not s_pll_clk_pos when rising_edge(s_pll_clk_2);
+  s_pll_clk_neg <= not s_pll_clk_pos when falling_edge(s_pll_clk_2);
+
+  -- Finally assign the clock outputs to avoid delta cycle delay problems
+  -- All these clocks should by phase aligned
+  CLK0   <= s_pll_clk_pos;
+  CLK90  <= s_pll_clk_neg;
+  CLK180 <= not s_pll_clk_pos;
+  CLK270 <= not s_pll_clk_neg;
+
+  CLK_REF_OUT <= CLK_REF or USR_CLK_REF;
 
   USR_PLL_LOCKED <= '1';
 
