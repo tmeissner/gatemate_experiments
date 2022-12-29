@@ -1,6 +1,6 @@
 DESIGN_NAME := uart_reg
 LIB_SRC     := ../../lib/rtl_components.vhd ../../lib/sim_components.vhd
-RTL_SRC     := ../rtl/uart_tx.vhd ../rtl/uart_rx.vhd ../rtl/${DESIGN_NAME}.vhd
+RTL_SRC     := ../rtl/uart_tx.vhd ../rtl/uart_rx.vhd ../rtl/uart_ctrl.vhd ../rtl/${DESIGN_NAME}.vhd
 SIM_SRC     := tb_${DESIGN_NAME}.vhd
 SIM_FLAGS   := --std=08 -fpsl --workdir=work
 

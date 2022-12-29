@@ -1,4 +1,8 @@
--- This design implements a simple UART loop with 9600 baud
+-- This design implements a register file which can
+-- be accessed by an UART with 9600 baud
+--
+-- See into uart_ctrl.vhd for documentation of the protocol
+-- used to read / write the register file.
 
 
 library ieee ;
@@ -30,6 +34,10 @@ architecture rtl of uart_reg is
   signal s_uart_rx_tdata  : std_logic_vector(7 downto 0);
   signal s_uart_rx_tvalid : std_logic;
   signal s_uart_rx_tready : std_logic;
+
+  signal s_uart_tx_tdata  : std_logic_vector(7 downto 0);
+  signal s_uart_tx_tvalid : std_logic;
+  signal s_uart_tx_tready : std_logic;
 
 begin
 
@@ -74,6 +82,21 @@ begin
     rx_i     => uart_rx_i
   );
 
+  uart_ctrl : entity work.uart_ctrl
+  port map (
+    -- globals
+    rst_n_i  => s_rst_n,
+    clk_i    => s_pll_clk,
+    -- uart rx interface
+    tdata_i  => s_uart_rx_tdata,
+    tvalid_i => s_uart_rx_tvalid,
+    tready_o => s_uart_rx_tready,
+    -- uart tx interface
+    tdata_o  => s_uart_tx_tdata,
+    tvalid_o => s_uart_tx_tvalid,
+    tready_i => s_uart_tx_tready
+  );
+
   uart_tx : entity work.uart_tx
   generic map (
     CLK_DIV => 104
@@ -83,9 +106,9 @@ begin
     rst_n_i  => s_rst_n,
     clk_i    => s_pll_clk,
     -- axis user interface
-    tdata_i  => s_uart_rx_tdata,
-    tvalid_i => s_uart_rx_tvalid,
-    tready_o => s_uart_rx_tready,
+    tdata_i  => s_uart_tx_tdata,
+    tvalid_i => s_uart_tx_tvalid,
+    tready_o => s_uart_tx_tready,
     -- uart interface
     tx_o     => uart_tx_o
   );

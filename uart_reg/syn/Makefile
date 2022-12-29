@@ -1,5 +1,5 @@
 DESIGN_NAME := uart_reg
-WORK_FILES  := ../rtl/uart_tx.vhd ../rtl/uart_rx.vhd ../rtl/uart_reg.vhd
+WORK_FILES  := ../rtl/uart_ctrl.vhd ../rtl/uart_tx.vhd ../rtl/uart_rx.vhd ../rtl/uart_reg.vhd
 GM_FILES    := ../../lib/rtl_components.vhd
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 YOSYSPIPE   := -nomx8 -retime
@@ -22,7 +22,6 @@ build/gatemate-obj08.cf: ${GM_FILES}
 
 # Synthesis target for implementation
 ${DESIGN_NAME}.v: build/work-obj08.cf
-	ghdl --synth ${GHDL_FLAGS} ${DESIGN_NAME} > ${DESIGN_NAME}.vhd
 	yosys -m ghdl -p 'ghdl ${GHDL_FLAGS} --warn-no-binding --no-formal ${DESIGN_NAME}; synth_gatemate -top $(DESIGN_NAME) ${YOSYSPIPE} -vlog $@' \
 	  2>&1 | tee build/yosys-report.txt
 
