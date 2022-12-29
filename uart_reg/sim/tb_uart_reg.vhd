@@ -14,8 +14,6 @@ architecture sim of tb_uart_reg is
   signal s_clk   : std_logic := '1';
   signal s_rst_n : std_logic := '0';
 
-  signal s_led_n : std_logic_vector(3 downto 0);
-
   signal s_uart_rx : std_logic := '1';
   signal s_uart_tx : std_logic;
 
@@ -29,8 +27,7 @@ begin
     clk_i     => s_clk,
     rst_n_i   => s_rst_n,
     uart_rx_i => s_uart_rx,
-    uart_tx_o => s_uart_tx,
-    led_n_o   => s_led_n
+    uart_tx_o => s_uart_tx
   );
 
   s_rst_n <= '1' after 120 ns;

@@ -1,5 +1,4 @@
--- This design should display incrementing binary numbers
--- at LED1-LED8 of the GateMate FPGA Starter Kit.
+-- This design implements a simple UART loop with 9600 baud
 
 
 library ieee ;
@@ -12,12 +11,10 @@ use gatemate.components.all;
 
 entity uart_reg is
 port (
-  clk_i     : in  std_logic;                    -- 10 MHz clock
-  rst_n_i   : in  std_logic;                    -- SW3 button
-  uart_rx_i : in  std_logic;
-  uart_tx_o : out std_logic;
-  led_n_o   : out std_logic_vector(3 downto 0);  -- LED1..LED2
-  debug_o   : out std_logic_vector(3 downto 0)
+  clk_i     : in  std_logic;  -- 10 MHz clock
+  rst_n_i   : in  std_logic;  -- SW3 button
+  uart_rx_i : in  std_logic;  -- PMODA IO3
+  uart_tx_o : out std_logic   -- PMODA IO5
 );
 end entity uart_reg;
 
@@ -26,7 +23,6 @@ architecture rtl of uart_reg is
 
   signal s_pll_clk  : std_logic;
   signal s_pll_lock : std_logic;
-  signal s_clk_en   : boolean;
 
   signal s_rst_n   : std_logic;
   signal s_cfg_end : std_logic;
@@ -34,7 +30,6 @@ architecture rtl of uart_reg is
   signal s_uart_rx_tdata  : std_logic_vector(7 downto 0);
   signal s_uart_rx_tvalid : std_logic;
   signal s_uart_rx_tready : std_logic;
-  signal s_uart_tx : std_logic;
 
 begin
 
@@ -96,11 +91,5 @@ begin
   );
 
   s_rst_n <= rst_n_i and s_pll_lock and s_cfg_end;
-
-  -- Start with simple loop
---  uart_tx_o <= uart_rx_i;
-
-  -- Debug output
-  led_n_o <= uart_rx_i & s_rst_n & not (s_pll_lock, s_cfg_end);
 
 end architecture;

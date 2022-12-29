@@ -11,6 +11,9 @@ use gatemate.components.all;
 
 
 entity blink is
+generic (
+  SIM : natural := 0
+);
 port (
   clk_i   : in  std_logic;                    -- 10 MHz clock
   rst_n_i : in  std_logic;                    -- SW3 button
@@ -21,13 +24,18 @@ end entity blink;
 
 architecture rtl of blink is
 
+  subtype t_clk_cnt is unsigned(19 downto 0);
+  signal s_clk_cnt     : t_clk_cnt;
+  signal s_clk_cnt_end : t_clk_cnt;
+
   signal s_pll_clk  : std_logic;
   signal s_pll_lock : std_logic;
-  signal s_clk_cnt  : unsigned(19 downto 0);
   signal s_clk_en   : boolean;
 
   signal s_rst_n   : std_logic;
   signal s_cfg_end : std_logic;
+
+  signal s_sys_rst_n : std_logic;
 
 begin
 
@@ -56,18 +64,42 @@ begin
     CFG_END => s_cfg_end
   );
 
+  -- This works
   s_rst_n <= rst_n_i and s_pll_lock and s_cfg_end;
+
+  -- This doesn't work.
+  -- The reset module seems to be removed during Yosys flatten pass, even
+  -- when the output is connected with an output port, WHY does this happen?
+  --   2.5. Executing FLATTEN pass (flatten design).
+  --   Deleting now unused module reset_sync_c4ea21bb365bbeeaf5f2c654883e56d11e43c44e.
+  --   <suppressed ~1 debug messages>
+  reset : entity work.reset_sync
+  generic map (
+    POLARITY => '0'
+  )
+  port map (
+    clk_i => s_pll_clk,
+    rst_i => rst_n_i and s_pll_lock and s_cfg_end,
+    rst_o => s_sys_rst_n
+  );
+
+  s_clk_cnt_end <= 20x"FFFFF" when SIM = 0 else  -- synthesis
+                   20x"000FF";                   -- simulation
 
   process (s_pll_clk, s_rst_n) is
   begin
     if (not s_rst_n) then
       s_clk_cnt <= (others => '0');
     elsif (rising_edge(s_pll_clk)) then
-      s_clk_cnt <= s_clk_cnt + 1;
+      if (s_clk_cnt = s_clk_cnt_end) then
+        s_clk_cnt <= (others => '0');
+      else
+        s_clk_cnt <= s_clk_cnt + 1;
+      end if;
     end if;
   end process;
 
-  s_clk_en <= s_clk_cnt = (s_clk_cnt'range => '1');
+  s_clk_en <= s_clk_cnt = s_clk_cnt_end;
 
   process (s_pll_clk, s_rst_n) is
   begin
@@ -79,5 +111,6 @@ begin
       end if;
     end if;
   end process;
+
 
 end architecture;

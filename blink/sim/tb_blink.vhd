@@ -19,6 +19,9 @@ architecture sim of tb_blink is
 begin
 
   dut : entity work.blink
+  generic map (
+    SIM => 1
+  )
   port map (
     clk_i   => s_clk,
     rst_n_i => s_rst_n,
