@@ -129,30 +129,23 @@ package components is
 
   component CC_FIFO_40K
     generic (
-    -- Location format: D(0..N-1)X(0..3)Y(0..7) or UNPLACED
-    LOC : string := "UNPLACED"; 
-    -- Offset configuration
-    ALMOST_FULL_OFFSET  : std_logic_vector (12 downto 0) := (others => '0');
-    ALMOST_EMPTY_OFFSET : std_logic_vector (12 downto 0) := (others => '0');
-    -- Port Widths
-    A_WIDTH : natural := 0;
-    B_WIDTH : natural := 0;
-    -- RAM and Write Modes
-    RAM_MODE  : string := "SDP";  -- "TPD" or "SDP"
-    FIFO_MODE : string := "SYNC"; -- "ASYNC" or "SYNC"
-    -- Inverting Control Pins
-    A_CLK_INV : std_logic := '0';
-    B_CLK_INV : std_logic := '0';
-    A_EN_INV  : std_logic := '0';
-    B_EN_INV  : std_logic := '0';
-    A_WE_INV  : std_logic := '0';
-    B_WE_INV  : std_logic := '0';
-    -- Output Register
-    A_DO_REG : std_logic := '0';
-    B_DO_REG : std_logic := '0';
-    -- Error Checking and Correction
-    A_ECC_EN : std_logic := '0';
-    B_ECC_EN : std_logic := '0'
+    LOC                 : string := "UNPLACED";  -- Location format: D(0..N-1)X(0..3)Y(0..7) or UNPLACED
+    ALMOST_FULL_OFFSET  : std_logic_vector (12 downto 0) := (others => '0');  -- Almost full offset
+    ALMOST_EMPTY_OFFSET : std_logic_vector (12 downto 0) := (others => '0');  -- Almost empty offset
+    A_WIDTH             : natural := 0;      -- Port A Width
+    B_WIDTH             : natural := 0;      -- Port B Width
+    RAM_MODE            : string := "SDP";   -- RAM mode: "TPD" or "SDP"
+    FIFO_MODE           : string := "SYNC";  -- Write mode: "ASYNC" or "SYNC"
+    A_CLK_INV           : std_logic := '0';  -- Inverting Control Pins
+    B_CLK_INV           : std_logic := '0';  -- Inverting Control Pins
+    A_EN_INV            : std_logic := '0';  -- Inverting Control Pins
+    B_EN_INV            : std_logic := '0';  -- Inverting Control Pins
+    A_WE_INV            : std_logic := '0';  -- Inverting Control Pins
+    B_WE_INV            : std_logic := '0';  -- Inverting Control Pins
+    A_DO_REG            : std_logic := '0';  -- Port A Output Register
+    B_DO_REG            : std_logic := '0';  -- Port B Output Register
+    A_ECC_EN            : std_logic := '0';  -- Port A Error Checking and Correction
+    B_ECC_EN            : std_logic := '0'   -- Port B Error Checking and Correction
     );
   port (
     A_ECC_1B_ERR : out std_logic;
@@ -179,20 +172,27 @@ package components is
     F_ALMOST_FULL_OFFSET  : in std_logic_vector(12 downto 0);
     F_ALMOST_EMPTY_OFFSET : in std_logic_vector(12 downto 0);
     -- FIFO status signals
-    F_FULL : out std_logic;
-    F_EMPTY : out std_logic;
-    F_ALMOST_FULL : out std_logic;
-    F_ALMOST_EMPTY: out std_logic;
-    F_RD_ERROR : out std_logic;
-    F_WR_ERROR : out std_logic;
-    F_RD_PTR : out std_logic_vector(15 downto 0);
-    F_WR_PTR : out std_logic_vector(15 downto 0)
+    F_FULL         : out std_logic;
+    F_EMPTY        : out std_logic;
+    F_ALMOST_FULL  : out std_logic;
+    F_ALMOST_EMPTY : out std_logic;
+    F_RD_ERROR     : out std_logic;
+    F_WR_ERROR     : out std_logic;
+    F_RD_PTR       : out std_logic_vector(15 downto 0);
+    F_WR_PTR       : out std_logic_vector(15 downto 0)
   );
   end component;
 
   component CC_CFG_END
   port (
     CFG_END : out std_logic
+  );
+  end component;
+
+  component CC_BUFG
+  port (
+    I : in  std_logic;
+    O : out std_logic
   );
   end component;
 
