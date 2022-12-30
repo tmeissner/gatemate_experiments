@@ -1,0 +1,4 @@
+[submodule "neorv32"]
+	path = neorv32
+	url = https://github.com/tmeissner/neorv32.git
+	branch = aes_cfs
