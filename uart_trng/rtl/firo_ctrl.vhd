@@ -41,13 +41,13 @@ architecture rtl of firo_ctrl is
   signal s_register_din     : std_logic_vector(1 downto 0);
   signal s_register_data    : std_logic_vector(8 downto 0);
   signal s_register_counter : unsigned(2 downto 0);
-  signal s_register_length  : natural range 1 to 2;
+  signal s_register_length  : positive range 1 to 2;
 
   signal s_data : std_logic_vector(3 downto 0);
 
 begin
 
-  frun_o  <= s_run when s_register_state = COLLECT else '0';
+  frun_o <= s_run when s_register_state = COLLECT else '0';
   s_data <= s_neumann_buffer & fdata_i;
 
   ControllerP : process (clk_i) is
