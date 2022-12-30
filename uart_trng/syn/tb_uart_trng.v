@@ -18,7 +18,7 @@ module CC_PLL #(
   reg r_pll_clk;
   reg r_user_pll_locked;
 
-  // OUT_FREQ = 10 MHz
+  // OUT_FREQ = 1 MHz
   integer clk_half_period = 50;
 
   initial begin
@@ -43,7 +43,7 @@ module CC_CFG_END (
 
 endmodule
 
-module tb_uart_loop;
+module tb_uart_reg;
 
   // DUT in/out
   reg  clk   = 1'b0;
@@ -62,12 +62,12 @@ module tb_uart_loop;
   localparam uart_bit_period = 1000000000 / 9600;
   localparam uart_bit_half_period = uart_bit_period/2;
 
-  uart_loop UUT (.clk_i(clk), .rst_n_i(rst_n), .uart_rx_i(uart_rx), .uart_tx_o(uart_tx));
+  uart_reg UUT (.clk_i(clk), .rst_n_i(rst_n), .uart_rx_i(uart_rx), .uart_tx_o(uart_tx));
 
   // set dumpfile
   initial begin
-    $dumpfile ("tb_uart_loop.fst");
-    $dumpvars (0, tb_uart_loop);
+    $dumpfile ("tb_uart_reg.fst");
+    $dumpvars (0, tb_uart_reg);
   end
     
   // Setup simulation
@@ -96,7 +96,7 @@ module tb_uart_loop;
       end
       uart_rx = 1'b1;
       #uart_bit_period;
-      #uart_bit_period;
+      #uart_bit_period
       #uart_bit_period;
     end
   end

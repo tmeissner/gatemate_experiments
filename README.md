@@ -24,6 +24,10 @@ Register file which can be accessed through UART. It uses *CC_PLL* & *CC_CFG_END
 
 In case of a write command, the payload has to follow with the next byte. In case of a read command, the value of the addressed register is returned on the axis out port. Register at address 0 is special. It contains the version and is read-only. Writes to that register are ignored.
 
+### uart_trng
+
+An implementation of a TRNG which allows to read random data from the FPGA via UART. Inclusive a software tool for easy access. Random generation is based on a fibonacci ring oscillator (FiRo) with toggle flip-flop and von Neumann post-processing.
+
 ## Further Ressources
 
 * [GateMate FPGA](https://www.colognechip.com/programmable-logic/gatemate)
