@@ -1,8 +1,5 @@
--- This design implements a register file which can
--- be accessed by an UART with 9600 baud
---
--- See into uart_ctrl.vhd for documentation of the protocol
--- used to read / write the register file.
+-- Simple UART loop with UART RX & TX units and FIFO buffer
+-- between. It's working at baudrate 9600.
 
 
 library ieee ;
@@ -44,7 +41,7 @@ begin
   pll : CC_PLL
   generic map (
     REF_CLK => "10",
-    OUT_CLK => "1",
+    OUT_CLK => "10",
     PERF_MD => "ECONOMY"
   )
   port map (
@@ -68,7 +65,7 @@ begin
 
   uart_rx : entity work.uart_rx
   generic map (
-    CLK_DIV => 104
+    CLK_DIV => 1040
   )
   port map (
     -- globals
@@ -84,7 +81,7 @@ begin
 
   axis_fifo : entity work.axis_fifo
   generic map (
-    DEPTH => 64,
+    DEPTH => 16,
     WIDTH => 8
   )
   port map (
@@ -107,7 +104,7 @@ begin
 
   uart_tx : entity work.uart_tx
   generic map (
-    CLK_DIV => 104
+    CLK_DIV => 1040
   )
   port map (
     -- globals

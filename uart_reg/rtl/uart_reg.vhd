@@ -44,7 +44,7 @@ begin
   pll : CC_PLL
   generic map (
     REF_CLK => "10",
-    OUT_CLK => "1",
+    OUT_CLK => "10",
     PERF_MD => "ECONOMY"
   )
   port map (
@@ -68,7 +68,7 @@ begin
 
   uart_rx : entity work.uart_rx
   generic map (
-    CLK_DIV => 104
+    CLK_DIV => 1040
   )
   port map (
     -- globals
@@ -99,7 +99,7 @@ begin
 
   uart_tx : entity work.uart_tx
   generic map (
-    CLK_DIV => 104
+    CLK_DIV => 1040
   )
   port map (
     -- globals

@@ -19,7 +19,7 @@ module CC_PLL #(
   reg r_user_pll_locked;
 
   // OUT_FREQ = 1 MHz
-  integer clk_half_period = 500;
+  integer clk_half_period = 50;
 
   initial begin
     r_pll_clk         = 1'b0;

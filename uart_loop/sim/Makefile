@@ -20,7 +20,7 @@ tb_${DESIGN_NAME}: ${LIB_SRC} ${RTL_SRC} ${SIM_SRC}
 
 sim: tb_${DESIGN_NAME}
 	@echo "Run testbench ..."
-	ghdl -r ${SIM_FLAGS} -Pwork tb_${DESIGN_NAME} --assert-level=error
+	ghdl -r ${SIM_FLAGS} -Pwork tb_${DESIGN_NAME} --assert-level=error --wave=tb_${DESIGN_NAME}.ghw
 
 work:
 	mkdir $@

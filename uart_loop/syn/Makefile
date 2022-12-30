@@ -2,7 +2,7 @@ DESIGN_NAME := uart_loop
 WORK_FILES  := ../../lib/user_components.vhd ../rtl/uart_tx.vhd ../rtl/uart_rx.vhd ../rtl/${DESIGN_NAME}.vhd
 GM_FILES    := ../../lib/rtl_components.vhd
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
-YOSYSPIPE   := -nomx8 -retime -nobram
+YOSYSPIPE   := -nomx8 -retime
 # ATTENTION: -luttree option seems to mis-synthesize the design, broken with synth_gatemate?
 PNRFLAGS    := -om 2
 PNRTOOL     := $(shell which p_r)

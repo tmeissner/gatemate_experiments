@@ -8,6 +8,12 @@ Ongoing experiments with the Cologne Chip's GateMate FPGA architecture. All expe
 
 Simple design which should display a blinking LED waving from LED1-LED8 of the GateMate FPGA Starter Kit. It uses *CC_PLL* & *CC_CFG_END* primitives of the GateMate FPGA.
 
+### uart_loop
+
+Simple UART loop with UART RX & TX units and FIFO buffer between. It uses *CC_PLL* & *CC_CFG_END* primitives of the GateMate FPGA. With fifo depth >= 18 Yosys is infering *CC_BRAM_20K* instead of registers.
+
+Beware: The simulation model of *CC_BRAM_20K* seems to be incorrect, so better set fifo depth < 18 or use yosys option `-nobram` when synthesizing the model for post-synthesis & post-implementation simulation.
+
 ### uart_reg
 
 Register file which can be accessed through UART. It uses *CC_PLL* & *CC_CFG_END* primitives of the GateMate FPGA. It contains 8 registers storing values of one byte each. The first received byte on the axis in port contains command & address:
