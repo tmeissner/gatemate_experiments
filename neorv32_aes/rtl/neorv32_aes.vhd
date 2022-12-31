@@ -56,7 +56,7 @@ end entity;
 architecture rtl of neorv32_aes is
 
   -- configuration --
-  constant f_clock_c : natural := 26_000_000; -- clock frequency in Hz
+  constant f_clock_c : natural := 20_000_000; -- clock frequency in Hz
 
   -- Globals
   signal s_pll_lock : std_logic;
@@ -65,14 +65,14 @@ architecture rtl of neorv32_aes is
 
   signal s_rst_n : std_logic;
 
-  signal s_con_pwm : std_logic_vector(2 downto 0);
+  signal s_con_gpio : std_logic_vector(3 downto 0);
   
 begin
 
   PLL : CC_PLL
   generic map (
     REF_CLK => "10",
-    OUT_CLK => "26",
+    OUT_CLK => "20",
     PERF_MD => "SPEED"
   )
   port map (
@@ -98,22 +98,41 @@ begin
 
   -- The core of the problem ----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  neorv32_inst: entity work.neorv32_ProcessorTop_Minimal
+  neorv32_inst: entity work.neorv32_top
   generic map (
-    CLOCK_FREQUENCY => f_clock_c -- clock frequency of s_pll_clk in Hz
+    CLOCK_FREQUENCY       => f_clock_c, -- clock frequency of s_pll_clk in Hz
+    CPU_EXTENSION_RISCV_M => true,
+    FAST_MUL_EN           => false,
+    FAST_SHIFT_EN         => false,
+    MEM_INT_IMEM_SIZE     => 8*1024,
+    MEM_INT_DMEM_SIZE     => 16*1024,
+    IO_MTIME_EN           => false,
+    IO_WDT_EN             => false,
+    IO_TRNG_EN            => false,
+    IO_CFS_EN             => true
   )
   port map (
     -- Global control --
     clk_i  => std_ulogic(s_pll_clk),
     rstn_i => std_ulogic(s_rst_n),
-	    -- PWM (to on-board RGB LED) --
-    pwm_o  => s_con_pwm
+	  -- GPIO
+    gpio_o  => s_con_gpio,
+    -- primary UART0
+    uart_txd_o => uart_tx_o,
+    uart_rxd_i => uart_rx_i
   );
+
+  -- p_r ERROR when connecting uart_rx_i & yosys option -retime (with both Yosys inferred & instantiated CC_BRAM_40K or CC_BRAM_40K memory)
+  --   FATAL ERROR: RAM 4070 Output DOA[6] not used but Input DIA[6] used!
+  --   program finished with exit code: 2
+
+  -- p_r ERROR with FAST_MUL_EN (even with the suggested p_r option sitched off)
+  --   FATAL ERROR: CP-lines in Multiplier cannot be used for CLK; please switch off using CP-lines for CLK (-cCP)
 
   -- IO Connection --------------------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  led_n_o(4 downto 0) <= (others => '1');
-  led_n_o(7 downto 5) <= s_con_pwm;
-  uart_tx_o <= uart_rx_i;
+  led_n_o(3 downto 0) <= s_con_gpio;
+  led_n_o(7 downto 4) <= (others => '1');
+--  uart_tx_o <= uart_rx_i;
 
 end architecture;

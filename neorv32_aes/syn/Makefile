@@ -55,11 +55,12 @@ NEORV32_CORE_SRC := \
 NEORV32_SRC := ${NEORV32_PKG} ${NEORV32_APP_SRC} ${NEORV32_MEM_ENTITIES} \
   ${NEORV32_MEM_SRC} ${NEORV32_CORE_SRC}
 
-WORK_FILES  := $(NEORV32_TEMPLATES)/neorv32_ProcessorTop_Minimal*.vhd ../rtl/${DESIGN_NAME}.vhd
+WORK_FILES  := ../rtl/neorv32_ProcessorTop_MinimalUart.vhd ../rtl/${DESIGN_NAME}.vhd
 GM_FILES    := ../../lib/rtl_components.vhd
 
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
-YOSYSPIPE   := -nomx8 -retime
+YOSYSPIPE   := -nomx8
+# -retime -cCP off
 PNRFLAGS    := -om 3
 PNRTOOL     := $(shell which p_r)
 
