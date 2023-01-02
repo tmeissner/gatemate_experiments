@@ -18,7 +18,6 @@ NEORV32_CORE_SRC := \
   $(NEORV32_CORE_DIR)/neorv32_boot_rom.vhd \
   $(NEORV32_CORE_DIR)/neorv32_bus_keeper.vhd \
   $(NEORV32_CORE_DIR)/neorv32_busswitch.vhd \
-  $(NEORV32_CORE_DIR)/neorv32_cfs.vhd \
   $(NEORV32_CORE_DIR)/neorv32_cpu.vhd \
   $(NEORV32_CORE_DIR)/neorv32_cpu_alu.vhd \
   $(NEORV32_CORE_DIR)/neorv32_cpu_bus.vhd \
@@ -43,25 +42,27 @@ NEORV32_CORE_SRC := \
   $(NEORV32_CORE_DIR)/neorv32_slink.vhd \
   $(NEORV32_CORE_DIR)/neorv32_spi.vhd \
   $(NEORV32_CORE_DIR)/neorv32_sysinfo.vhd \
-  $(NEORV32_CORE_DIR)/neorv32_top.vhd \
   $(NEORV32_CORE_DIR)/neorv32_trng.vhd \
   $(NEORV32_CORE_DIR)/neorv32_twi.vhd \
   $(NEORV32_CORE_DIR)/neorv32_uart.vhd \
   $(NEORV32_CORE_DIR)/neorv32_wdt.vhd \
   $(NEORV32_CORE_DIR)/neorv32_wishbone.vhd \
   $(NEORV32_CORE_DIR)/neorv32_xip.vhd \
-  $(NEORV32_CORE_DIR)/neorv32_xirq.vhd
+  $(NEORV32_CORE_DIR)/neorv32_xirq.vhd \
+  $(NEORV32_CORE_DIR)/neorv32_cfs.vhd \
+  $(NEORV32_CORE_DIR)/neorv32_cfs_aes.vhd \
+  $(NEORV32_CORE_DIR)/neorv32_top.vhd
 
 NEORV32_SRC := ${NEORV32_PKG} ${NEORV32_APP_SRC} ${NEORV32_MEM_ENTITIES} \
   ${NEORV32_MEM_SRC} ${NEORV32_CORE_SRC}
 
-WORK_FILES  := ../rtl/neorv32_ProcessorTop_MinimalUart.vhd ../rtl/${DESIGN_NAME}.vhd
+WORK_FILES  := ../rtl/${DESIGN_NAME}.vhd
 GM_FILES    := ../../lib/rtl_components.vhd
 
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 YOSYSPIPE   := -nomx8
-# -retime -cCP off
-PNRFLAGS    := -om 3
+# -retime
+PNRFLAGS    := -om 3 -cCP on
 PNRTOOL     := $(shell which p_r)
 
 .PHONY: all syn imp prog syn_sim imp_sim
