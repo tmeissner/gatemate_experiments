@@ -2,3 +2,6 @@
 	path = neorv32
 	url = https://github.com/tmeissner/neorv32.git
 	branch = aes_cfs
+[submodule "cryptocores"]
+	path = cryptocores
+	url = https://git.goodcleanfun.de/tmeissner/cryptocores.git
