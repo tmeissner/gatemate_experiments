@@ -56,8 +56,17 @@ NEORV32_CORE_SRC := \
 NEORV32_SRC := ${NEORV32_PKG} ${NEORV32_APP_SRC} ${NEORV32_MEM_ENTITIES} \
   ${NEORV32_MEM_SRC} ${NEORV32_CORE_SRC}
 
-WORK_FILES  := ../rtl/${DESIGN_NAME}.vhd
-GM_FILES    := ../../lib/rtl_components.vhd
+AES_DIR   := ../../cryptocores/aes/rtl/vhdl
+CRYPTO_SRC := \
+  $(AES_DIR)/aes_pkg.vhd \
+  $(AES_DIR)/aes_enc.vhd \
+  $(AES_DIR)/aes_dec.vhd \
+  $(AES_DIR)/aes.vhd \
+  $(AES_DIR)/../../../ctraes/rtl/vhdl/ctraes.vhd
+
+
+WORK_FILES   := ../rtl/${DESIGN_NAME}.vhd
+GM_FILES     := ../../lib/rtl_components.vhd
 
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 YOSYSPIPE   := -nomx8
@@ -74,8 +83,11 @@ imp: ${DESIGN_NAME}.bit
 build/work-obj08.cf: ${WORK_FILES} build/gatemate-obj08.cf build/neorv32-obj08.cf
 	ghdl -a ${GHDL_FLAGS} --work=work ${WORK_FILES}
 
-build/neorv32-obj08.cf: build/gatemate-obj08.cf ${NEORV32_SRC}
+build/neorv32-obj08.cf: build/gatemate-obj08.cf build/cryptocores-obj08.cf ${NEORV32_SRC}
 	ghdl -a $(GHDL_FLAGS) --work=neorv32 ${NEORV32_SRC}
+
+build/cryptocores-obj08.cf: ${CRYPTO_SRC}
+	ghdl -a $(GHDL_FLAGS) --work=cryptocores ${CRYPTO_SRC}
 
 build/gatemate-obj08.cf: ${GM_FILES}
 	mkdir -p build
