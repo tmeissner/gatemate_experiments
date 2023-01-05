@@ -49,11 +49,11 @@ entity neorv32_aes is
     clk_i     : in  std_logic;  -- 10 MHz clock
     rst_n_i   : in  std_logic;  -- SW3 button
     -- LED outputs
-    led_n_o   : out std_logic_vector(7 downto 0)
+    led_n_o   : out std_logic_vector(7 downto 0);
     -- UART0
 --    uart_rx_i : in  std_logic;  -- PMODA IO
 --    uart_tx_o : out std_logic   -- PMODA IO
-
+    debug_o : out std_logic_vector(15 downto 0)
   );
 end entity;
 
@@ -67,9 +67,12 @@ architecture rtl of neorv32_aes is
   signal s_pll_clk  : std_logic;
   signal s_cfg_end  : std_logic;
 
-  signal s_rst_n : std_logic;
+  signal s_rst_n          : std_logic;
+  signal s_rst_debounced : std_logic;
 
   signal s_con_gpio : std_ulogic_vector(63 downto 0);
+
+  signal s_debug : std_logic_vector(63 downto 0);
   
 begin
 
@@ -98,16 +101,30 @@ begin
     CFG_END => s_cfg_end
   );
 
-  s_rst_n <= s_pll_lock and s_cfg_end and rst_n_i;
+   rst_debounce : block is
+    signal s_rst_d : std_logic_vector(29 downto 0);
+  begin
+    process (s_pll_clk, rst_n_i) is
+    begin
+      if (not rst_n_i) then
+        s_rst_d <= (others => '0');
+      elsif (rising_edge(s_pll_clk)) then
+        s_rst_d <= s_rst_d(s_rst_d'left-1 downto 0) & rst_n_i;
+      end if;
+    end process;
+    s_rst_debounced <= and s_rst_d;
+  end block rst_debounce;
+
+  s_rst_n <= s_pll_lock and s_cfg_end and s_rst_debounced;
 
   -- The core of the problem ----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
   neorv32_inst: entity neorv32.neorv32_top
   generic map (
     CLOCK_FREQUENCY              => f_clock_c, -- clock frequency of s_pll_clk in Hz
-    INT_BOOTLOADER_EN            => false,             -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
+    INT_BOOTLOADER_EN            => false,     -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
     -- RISC-V CPU Extensions --
-    CPU_EXTENSION_RISCV_C        => true,      -- implement compressed extension?
+    CPU_EXTENSION_RISCV_C        => false,     -- implement compressed extension?
     CPU_EXTENSION_RISCV_M        => true,      -- implement mul/div extension?
     CPU_EXTENSION_RISCV_Zicsr    => true,      -- implement CSR system?
     CPU_EXTENSION_RISCV_Zicntr   => true,      -- implement base counters?
@@ -116,9 +133,9 @@ begin
     FAST_SHIFT_EN                => false,
     -- Internal Instruction memory --
     MEM_INT_IMEM_EN              => true,      -- implement processor-internal instruction memory
-    MEM_INT_IMEM_SIZE            => 16*1024,   -- size of processor-internal instruction memory in bytes
+    MEM_INT_IMEM_SIZE            => 4*1024,    --16*1024,   -- size of processor-internal instruction memory in bytes
     -- Internal Data memory --
-    MEM_INT_DMEM_EN              => true,      -- implement processor-internal data memory
+    MEM_INT_DMEM_EN              => true,       -- implement processor-internal data memory
     MEM_INT_DMEM_SIZE            => 8*1024,    -- size of processor-internal data memory in bytes
     -- Processor peripherals --
     IO_GPIO_EN                   => true,      -- implement general purpose input/output port unit (GPIO)?
@@ -134,16 +151,17 @@ begin
 	  -- GPIO
     gpio_o  => s_con_gpio,
     -- primary UART0
-    uart0_txd_o => open,
-    uart0_rxd_i => '0'
+    uart0_txd_o => open,  -- uart_tx_o,
+    uart0_rxd_i => '1',  -- uart_rx_i,
+    -- debug
+    debug_o => s_debug
   );
+
+  debug_o <= s_debug(15 downto 0);
 
   -- p_r ERROR when connecting uart_rx_i & yosys option -retime (with both Yosys inferred & instantiated CC_BRAM_40K or CC_BRAM_40K memory)
   --   FATAL ERROR: RAM 4070 Output DOA[6] not used but Input DIA[6] used!
   --   program finished with exit code: 2
-
-  -- p_r ERROR with FAST_MUL_EN (fix with suggested p_r option switched off)
-  --   FATAL ERROR: CP-lines in Multiplier cannot be used for CLK; please switch off using CP-lines for CLK (-cCP)
 
   -- IO Connection --------------------------------------------------------------------------
   led_n_o <= not std_logic_vector(s_con_gpio(7 downto 0));

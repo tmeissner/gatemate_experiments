@@ -11,7 +11,7 @@ NEORV32_MEM_ENTITIES := \
 
 NEORV32_MEM_SRC := \
   $(NEORV32_CORE_DIR)/mem/neorv32_imem.default.vhd \
-  $(NEORV32_CORE_DIR)/mem/neorv32_dmem.default.vhd
+  $(NEORV32_CORE_DIR)/mem/neorv32_dmem.gatemate.vhd
 
 NEORV32_CORE_SRC := \
   $(NEORV32_CORE_DIR)/neorv32_bootloader_image.vhd \
@@ -51,7 +51,8 @@ NEORV32_CORE_SRC := \
   $(NEORV32_CORE_DIR)/neorv32_xirq.vhd \
   $(NEORV32_CORE_DIR)/neorv32_cfs.vhd \
   $(NEORV32_CORE_DIR)/neorv32_cfs_aes.vhd \
-  $(NEORV32_CORE_DIR)/neorv32_top.vhd
+  ../rtl/neorv32_top.vhd
+#  $(NEORV32_CORE_DIR)/neorv32_top.vhd
 
 NEORV32_SRC := ${NEORV32_PKG} ${NEORV32_APP_SRC} ${NEORV32_MEM_ENTITIES} \
   ${NEORV32_MEM_SRC} ${NEORV32_CORE_SRC}
@@ -69,8 +70,9 @@ WORK_FILES   := ../rtl/${DESIGN_NAME}.vhd
 GM_FILES     := ../../lib/rtl_components.vhd
 
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
-YOSYSPIPE   := -nomx8
-# -retime
+ICARUSFLAGS := -Wall -Winfloop -g2012 -gspecify -Ttyp
+
+YOSYSPIPE   := -nomx8 -nobram
 PNRFLAGS    := -om 3 -cCP on
 PNRTOOL     := $(shell which p_r)
 
@@ -107,12 +109,12 @@ ${DESIGN_NAME}.bit: ${DESIGN_NAME}.v ${DESIGN_NAME}.ccf
 
 # Post-synthesis simulation target
 syn_sim: ${DESIGN_NAME}.v
-	iverilog -g2012 -o tb_${DESIGN_NAME}_syn.vvp ${DESIGN_NAME}.v tb_${DESIGN_NAME}.v /usr/local/share/yosys/gatemate/cells_sim.v
+	iverilog ${ICARUSFLAGS} -o tb_${DESIGN_NAME}_syn.vvp ${DESIGN_NAME}.v tb_${DESIGN_NAME}.v /usr/local/share/yosys/gatemate/cells_sim.v
 	vvp -N tb_${DESIGN_NAME}_syn.vvp -fst
 
 # Post-implementation simulation target
 imp_sim: ${DESIGN_NAME}.bit
-	iverilog -g2012 -o tb_${DESIGN_NAME}_imp.vvp build/${DESIGN_NAME}_00.v tb_${DESIGN_NAME}.v /opt/cc-toolchain-linux/bin/p_r/cpelib.v
+	iverilog ${ICARUSFLAGS} -o tb_${DESIGN_NAME}_imp.vvp build/${DESIGN_NAME}_00.v tb_${DESIGN_NAME}.v /opt/cc-toolchain-linux/bin/p_r/cpelib.v
 	vvp -N tb_${DESIGN_NAME}_imp.vvp -fst
 
 # FPGA FW load per JTAG
