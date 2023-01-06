@@ -43,13 +43,12 @@ module CC_CFG_END (
 
 endmodule
 
-module tb_uart_reg;
+module tb_uart_trng;
 
   // DUT in/out
   reg  clk   = 1'b0;
   reg  rst_n = 1'b1;
-  reg  uart_rx;
-  wire uart_tx;
+  reg  uart_tx;
 
   // Testbench variables
   reg [7:0] tx_data = 8'h0;
@@ -62,44 +61,22 @@ module tb_uart_reg;
   localparam uart_bit_period = 1000000000 / 9600;
   localparam uart_bit_half_period = uart_bit_period/2;
 
-  uart_reg UUT (.clk_i(clk), .rst_n_i(rst_n), .uart_rx_i(uart_rx), .uart_tx_o(uart_tx));
+  uart_trng UUT (.clk_i(clk), .rst_n_i(rst_n), .uart_tx_o(uart_tx));
 
   // set dumpfile
   initial begin
-    $dumpfile ("tb_uart_reg.fst");
-    $dumpvars (0, tb_uart_reg);
+    $dumpfile ("tb_uart_trng.fst");
+    $dumpvars (0, tb_uart_trng);
   end
     
   // Setup simulation
   initial begin
-    uart_rx = 1'b1;
     #1   rst_n = 1'b0;
     #120 rst_n = 1'b1;
   end
 
   // Generate 10 mhz clock
   always #clk_half_period clk = !clk;
-
-  // Stimuli generator
-  initial 
-    forever @(posedge rst_n) begin
-    uart_rx = 1'b1;
-    #uart_bit_period;
-    for (integer tx = 0; tx < 32; tx = tx + 1) begin
-      tx_data = tx;
-      $display ("UART send: 0x%h", tx_data);
-      uart_rx = 1'b0;
-      #uart_bit_period;
-      for (integer i = 0; i < 7; i = i + 1) begin
-        uart_rx = tx_data[i];
-        #uart_bit_period;
-      end
-      uart_rx = 1'b1;
-      #uart_bit_period;
-      #uart_bit_period
-      #uart_bit_period;
-    end
-  end
 
   // Checker
   initial begin
@@ -112,10 +89,7 @@ module tb_uart_reg;
         rx_data[i] = uart_tx;
         #uart_bit_period;
       end
-      assert (rx_data == rx)
-        $display("UART recv: 0x%h", rx_data);
-      else
-        $warning("UART receive error, got 0x%h, expected 0x%h", rx_data, rx);
+      $display ("UART recv: 0x%h", rx_data);
     end
     $display ("UART tests finished");
     $finish;

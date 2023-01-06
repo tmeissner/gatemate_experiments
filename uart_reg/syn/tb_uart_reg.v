@@ -90,7 +90,7 @@ module tb_uart_reg;
       $display ("UART send: 0x%h", tx_data);
       uart_rx = 1'b0;
       #uart_bit_period;
-      for (integer i = 0; i < 7; i = i + 1) begin
+      for (integer i = 0; i <= 7; i = i + 1) begin
         uart_rx = tx_data[i];
         #uart_bit_period;
       end
@@ -108,7 +108,7 @@ module tb_uart_reg;
       @(negedge uart_tx)
       #uart_bit_period;
       #uart_bit_half_period;
-      for (integer i = 0; i < 7; i = i + 1) begin
+      for (integer i = 0; i <= 7; i = i + 1) begin
         rx_data[i] = uart_tx;
         #uart_bit_period;
       end
