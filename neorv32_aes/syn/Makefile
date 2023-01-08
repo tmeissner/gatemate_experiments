@@ -51,8 +51,7 @@ NEORV32_CORE_SRC := \
   $(NEORV32_CORE_DIR)/neorv32_xirq.vhd \
   $(NEORV32_CORE_DIR)/neorv32_cfs.vhd \
   $(NEORV32_CORE_DIR)/neorv32_cfs_aes.vhd \
-  ../rtl/neorv32_top.vhd
-#  $(NEORV32_CORE_DIR)/neorv32_top.vhd
+  $(NEORV32_CORE_DIR)/neorv32_top.vhd
 
 NEORV32_SRC := ${NEORV32_PKG} ${NEORV32_APP_SRC} ${NEORV32_MEM_ENTITIES} \
   ${NEORV32_MEM_SRC} ${NEORV32_CORE_SRC}
