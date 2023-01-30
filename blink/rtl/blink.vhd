@@ -43,7 +43,7 @@ begin
   generic map (
     REF_CLK => "10",
     OUT_CLK => "2",
-    PERF_MD => "ECONOMY"
+    PERF_MD => "SPEED"
   )
   port map (
     CLK_REF             => clk_i,

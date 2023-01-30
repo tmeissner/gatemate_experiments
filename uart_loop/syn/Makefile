@@ -4,7 +4,7 @@ GM_FILES    := ../../lib/rtl_components.vhd
 GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 YOSYSPIPE   := -nomx8 -retime
 # ATTENTION: -luttree option seems to mis-synthesize the design, broken with synth_gatemate?
-PNRFLAGS    := -om 2
+PNRFLAGS    := -om 3
 PNRTOOL     := $(shell which p_r)
 
 .PHONY: all syn imp prog syn_sim imp_sim
