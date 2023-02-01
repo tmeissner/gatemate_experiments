@@ -4,8 +4,6 @@ AES_DIR   := ../../cryptocores/aes/rtl/vhdl
 CRYPTO_SRC := \
   $(AES_DIR)/aes_pkg.vhd \
   $(AES_DIR)/aes_enc.vhd \
-  $(AES_DIR)/aes_dec.vhd \
-  $(AES_DIR)/aes.vhd \
   $(AES_DIR)/../../../ctraes/rtl/vhdl/ctraes.vhd
 
 WORK_FILES  := \
@@ -21,8 +19,15 @@ GHDL_FLAGS  := --std=08 --workdir=build -Pbuild
 ICARUSFLAGS := -Wall -Winfloop -g2012 -gspecify -Ttyp
 
 YOSYSPIPE   := -nomx8
-PNRFLAGS    := -om 3 -cCP on
+# yosys -nomx8 option has to be used as GM FPGA hasn't any (working?) MUX8 cells (in contrast to documentation)
+# yosys -retime option causes design AES unit misbehavior (wrong results)
+# yosys -dff option can be used without risk (but leads to 2.5 mhz less fmax)
+
 PNRTOOL     := $(shell which p_r)
+PNRFLAGS    := -om 3 -cCP off
+# p_r +cCP option causes design AES unit misbehavior (wrong results != retime results)
+# p_r +sp option causes design AES unit misbehavior (wrong results != retime results != cCP results)
+# p_r +cCP with +gCP also breaks UART
 
 
 .PHONY: all syn imp prog syn_sim imp_sim

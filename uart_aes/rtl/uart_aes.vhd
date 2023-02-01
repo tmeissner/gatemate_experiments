@@ -1,8 +1,8 @@
--- This design implements a register file which can
+-- This design implements a AES-CTR unit which which can
 -- be accessed by an UART with 9600 baud
 --
 -- See into uart_ctrl.vhd for documentation of the protocol
--- used to read / write the register file.
+-- used to read / write the AES-CTR registers.
 
 
 library ieee ;
