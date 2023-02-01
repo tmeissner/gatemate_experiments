@@ -51,9 +51,9 @@ entity neorv32_aes is
     -- LED outputs
     led_n_o   : out std_logic_vector(7 downto 0);
     -- UART0
---    uart_rx_i : in  std_logic;  -- PMODA IO
---    uart_tx_o : out std_logic   -- PMODA IO
-    debug_o : out std_logic_vector(15 downto 0)
+    uart_rx_i : in  std_logic;  -- PMODA IO
+    uart_tx_o : out std_logic;  -- PMODA IO
+    debug_o   : out std_logic_vector(15 downto 0)
   );
 end entity;
 
@@ -140,9 +140,8 @@ begin
     -- Processor peripherals --
     IO_GPIO_EN                   => true,      -- implement general purpose input/output port unit (GPIO)?
     IO_MTIME_EN                  => true,      -- implement machine system timer (MTIME)?
-    IO_UART0_EN                  => false,     -- implement primary universal asynchronous receiver/transmitter (UART0)?
-    IO_CFS_EN                    => false,     -- implement custom functions subsystem (CFS)?
-    IO_AES_EN                    => true       -- implement AES(128) custom function?
+    IO_UART0_EN                  => true,     -- implement primary universal asynchronous receiver/transmitter (UART0)?
+    IO_CFS_EN                    => true       -- implement custom functions subsystem (CFS, AES-CTR)?
   )
   port map (
     -- Global control --
@@ -151,10 +150,8 @@ begin
 	  -- GPIO
     gpio_o  => s_con_gpio,
     -- primary UART0
-    uart0_txd_o => open,  -- uart_tx_o,
-    uart0_rxd_i => '1',  -- uart_rx_i,
-    -- debug
-    debug_o => s_debug
+    uart0_txd_o => uart_tx_o,
+    uart0_rxd_i => uart_rx_i
   );
 
   debug_o <= s_debug(15 downto 0);
