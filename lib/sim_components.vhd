@@ -61,16 +61,16 @@ library ieee ;
 use ieee.std_logic_1164.all;
 
 
-entity CC_CFG_END is
-port (
-  CFG_END : out std_logic
-);
+entity CC_USR_RSTN
+  port (
+    USR_RSTN : out std_logic
+  );
 end entity;
 
 
-architecture sim of CC_CFG_END is
+architecture sim of CC_USR_RSTN is
 begin
 
-  CFG_END <= '1';
+  USR_RSTN <= '1';
 
 end architecture;

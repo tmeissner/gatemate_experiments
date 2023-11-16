@@ -32,8 +32,8 @@ architecture rtl of blink is
   signal s_pll_lock : std_logic;
   signal s_clk_en   : boolean;
 
-  signal s_rst_n   : std_logic;
-  signal s_cfg_end : std_logic;
+  signal s_rst_n    : std_logic;
+  signal s_usr_rstn : std_logic;
 
   signal s_sys_rst_n : std_logic;
 
@@ -59,13 +59,13 @@ begin
     CLK_REF_OUT         => open
   );
 
-  cfg_end_inst : CC_CFG_END
+  cc_usr_rstn_inst : CC_USR_RSTN
   port map (
-    CFG_END => s_cfg_end
+    USR_RSTN => s_usr_rstn
   );
 
   -- This works
-  s_rst_n <= rst_n_i and s_pll_lock and s_cfg_end;
+  s_rst_n <= rst_n_i and s_pll_lock and s_usr_rstn;
 
   -- This doesn't work.
   -- The reset module seems to be removed during Yosys flatten pass, even
@@ -79,7 +79,7 @@ begin
   )
   port map (
     clk_i => s_pll_clk,
-    rst_i => rst_n_i and s_pll_lock and s_cfg_end,
+    rst_i => rst_n_i and s_pll_lock and s_usr_rstn,
     rst_o => s_sys_rst_n
   );
 

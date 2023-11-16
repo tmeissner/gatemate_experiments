@@ -31,8 +31,8 @@ architecture rtl of uart_trng is
   signal s_pll_clk  : std_logic;
   signal s_pll_lock : std_logic;
 
-  signal s_rst_n   : std_logic;
-  signal s_cfg_end : std_logic;
+  signal s_rst_n    : std_logic;
+  signal s_usr_rstn : std_logic;
 
   signal s_uart_tx_tdata  : std_logic_vector(7 downto 0);
   signal s_uart_tx_tvalid : std_logic;
@@ -63,9 +63,9 @@ begin
     CLK_REF_OUT         => open
   );
 
-  cfg_end_inst : CC_CFG_END
+  cc_usr_rstn_inst : CC_USR_RSTN
   port map (
-    CFG_END => s_cfg_end
+    USR_RSTN => s_usr_rstn
   );
 
   firo_ctrl : entity work.firo_ctrl 
@@ -132,6 +132,6 @@ begin
     tx_o     => uart_tx_o
   );
 
-  s_rst_n <= rst_n_i and s_pll_lock and s_cfg_end;
+  s_rst_n <= rst_n_i and s_pll_lock and s_usr_rstn;
 
 end architecture;

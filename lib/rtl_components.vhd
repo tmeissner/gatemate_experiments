@@ -492,6 +492,12 @@ package components is
   );
   end component;
 
+  component CC_USR_RSTN
+  port (
+    USR_RSTN : out std_logic
+  );
+  end component;
+
   component CC_BUFG
   port (
     I : in  std_logic;
